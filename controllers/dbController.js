@@ -9,9 +9,17 @@ const mysql = require('mysql2/promise');
 //   password: '',
 //   database: 'cinema'
 // }
+// const db_info = {
+//   host: 'db',
+//   port: '3306',
+//   user: 'root',
+//   password: 'root',
+//   database: 'cinema'
+// }
+
 const db_info = {
-  host: 'db',
-  port: '3306',
+  host: '52.78.157.26',
+  port: '8086',
   user: 'root',
   password: 'root',
   database: 'cinema'

@@ -32,7 +32,7 @@ exports.crawleMovieReview = async (driver, movie, mHref)  =>{
                         }
                         console.log(revJson);
                         try {
-                            let sql =  "INSERT INTO movie_review VALUES (?,?,?, ?,?,?,?)";
+                            let sql =  "INSERT INTO movie_review (`movie_id`, `site`, `created`, `writer`, `comment`, `like_num`, `rating_num`) VALUES (?,?,?, ?,?,?,?)";
                             let params = [revJson.movie_id, revJson.site, revJson.created, revJson.writer, revJson.comment, revJson.like_num, -1];
                             let queryRes = await dbQuery("INSERT", sql, params);
                         } catch (error) {

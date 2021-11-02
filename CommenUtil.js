@@ -5,14 +5,14 @@ exports.getNowDateToYYMMDD =  () => {
 }
 
 /* ==== Local ==== */
-// const multer = require('multer');
-// var storage = multer.diskStorage({
-//   destination: function (req, file, cb) {cb(null,'./public/images/users')},
-//   filename: function (req, file, cb) { cb(null, `${Date.now()}_${file.originalname}`) }
-// });
-// exports.formDataUpload = multer({storage: storage});
-/* ============== */
 const multer = require('multer');
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {cb(null,'./public/images/users')},
+  filename: function (req, file, cb) { cb(null, `${Date.now()}_${file.originalname}`) }
+});
+exports.localFormDataUpload = multer({storage: storage});
+/* ============== */
+// const multer = require('multer');
 const multerS3 = require('multer-s3');
 const aws = require('aws-sdk');
 

@@ -37,7 +37,7 @@ let {crawleReservationRate} = require('./crawler/movieCrawler/crawleReservationR
   try {
     await crawleReservationRate();
     // await crawleGraph();
-    await require('./crawler/movieCrawler/crawleGraphInNaver').crawleGraph2();
+    // await require('./crawler/movieCrawler/crawleGraphInNaver').crawleGraph2();
   } catch (error) {
     console.log(error);
   }
@@ -47,7 +47,7 @@ let crawlerInterval = setInterval(async () => {
   try {
     await crawleReservationRate();
     // await crawleGraph();
-    await require('./crawler/movieCrawler/crawleGraphInNaver').crawleGraph2();
+    // await require('./crawler/movieCrawler/crawleGraphInNaver').crawleGraph2();
   } catch (error) {
     console.log(error);
   }

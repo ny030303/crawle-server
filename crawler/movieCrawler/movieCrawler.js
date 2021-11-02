@@ -8,6 +8,7 @@ const chrome = require('selenium-webdriver/chrome');
 const chromedriver = require('chromedriver');
 const {loadChromeDriver} = require("../../CommenUtil");
 const implicit_wait = {implicit: 5000, pageLoad: 5000};
+const tableName = "movie_beta";
 
 chrome.setDefaultService(new chrome.ServiceBuilder(chromedriver.path).build());
 Array.prototype.division = function (n) {
@@ -25,8 +26,8 @@ const loadSelenium = () => {
     // options.headless();
     options.addArguments('--headless --disable-gpu');     // GPU 사용 안함
     options.addArguments('lang=ko_KR');      //  언어 설정
-    // return new Builder().withCapabilities(Capabilities.chrome()).setChromeOptions(options).build();
-    return new Builder().withCapabilities(Capabilities.chrome()).setChromeOptions(new chrome.Options().headless()).build();
+    return new Builder().withCapabilities(Capabilities.chrome()).setChromeOptions(options).build();
+    // return new Builder().withCapabilities(Capabilities.chrome()).setChromeOptions(new chrome.Options().headless()).build();
 }
 
 const getMListView = async (driver) => {
@@ -98,10 +99,11 @@ const findNumIdxInArrView = async (arrView, num) => {
 
 })();
 
-var urlArr, href;
 
 const getMovieJSON = async (listView, driver, i) => {
   try {
+
+    var urlArr;
     let title = listView[i].findElement(By.css("td:nth-child(1) > span > a"));
     let mJson = {
         "movie_id": (await (listView[i].findElement(By.css("td:nth-child(3) > span"))).getText()).trim(),
@@ -114,13 +116,15 @@ const getMovieJSON = async (listView, driver, i) => {
         "production_status": (await listView[i].findElement(By.css("td:nth-child(8) > span")).getAttribute("title")).trim(),
         "poster_img": null, "release_date": "", "updated_date": null, "memo": null,
         "director": (await listView[i].findElement(By.css("td:nth-child(9) > span")).getAttribute("title")).trim(),
-        "actor": {}, "story": ""
+        "actor": {}, "story": "",
+        "href": ""
     };
     await driver.manage().setTimeouts(implicit_wait);
     await title.click();
     await driver.sleep(2000);
-    href = await (await driver.findElement(By.css(".item_tab.basic > div.ovf.info.info1 > a"))).getAttribute("href");
-    urlArr = href.split("/"); 
+    
+    mJson.href = await (await driver.findElement(By.css(".item_tab.basic > div.ovf.info.info1 > a"))).getAttribute("href");
+    urlArr = mJson.href.split("/"); 
     let imgLink = `${Date.now()}_${urlArr[urlArr.length-1]}`;
     if(urlArr[urlArr.length-1] == "searchMovieList.do#") { mJson.poster_img = "";} 
     else { mJson.poster_img = imgLink; }
@@ -152,11 +156,11 @@ const getMovieJSON = async (listView, driver, i) => {
 const pushMovieQuery = async (mJson) => {
   try {
     // 원래 있는 데이터 업데이트
-    res = await dbQuery("GET", "SELECT * FROM movie WHERE movie_id = ?", [mJson.movie_id]);
+    res = await dbQuery("GET", "SELECT * FROM "+tableName+" WHERE movie_id = ?", [mJson.movie_id]);
     if(res.row.length > 0) {
       // console.log(res.row[0].updated_date, mJson.updated_date);
       if(res.row[0].updated_date != mJson.updated_date) {
-        let sql =  "UPDATE `movie` SET `title`=?,`eng_title`=?,`production_year`=?,`production_country`=?,`size_type`=?,`genore`=?,`production_status`=?,`poster_img`=?,`release_date`=?,`updated_date`=?,`memo`=?,`director`=?,`actor`=?,`story`=? WHERE `movie_id`=?";
+        let sql =  "UPDATE "+tableName+" SET `title`=?,`eng_title`=?,`production_year`=?,`production_country`=?,`size_type`=?,`genore`=?,`production_status`=?,`poster_img`=?,`release_date`=?,`updated_date`=?,`memo`=?,`director`=?,`actor`=?,`story`=? WHERE `movie_id`=?";
         let imgUrl;
         if(res.row[0].poster_img == "") imgUrl = mJson.poster_img;
         else imgUrl = res.row[0].poster_img;
@@ -165,14 +169,14 @@ const pushMovieQuery = async (mJson) => {
           mJson.director, JSON.stringify(mJson.actor), mJson.story, mJson.movie_id];
         let queryRes = await dbQuery("UPDATE", sql, params);
         if(!queryRes.error) {
-          if(urlArr[urlArr.length-1] != "searchMovieList.do#" && imgUrl == mJson.poster_img) {
-            downloadImageToUrlInS3(href, mJson.poster_img);
+          if(mJson.poster_img != "" && imgUrl == mJson.poster_img) {
+            downloadImageToUrl(mJson.href, mJson.poster_img);
           }
         }
         console.log(" updated => " + mJson.movie_id);
       } else { console.log("no updated => "+ mJson.movie_id);}
     } else {
-      let sql = "INSERT INTO movie VALUES (?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?)";
+      let sql = "INSERT INTO "+tableName+" VALUES (?,?,?,?,?, ?,?,?,?,?, ?,?,?,?,?)";
       let params = [mJson.movie_id, mJson.title, mJson.eng_title, mJson.production_year, mJson.production_country,
         mJson.size_type, mJson.genore, mJson.production_status,mJson.poster_img, mJson.release_date,
         mJson.updated_date,mJson.memo,mJson.director,JSON.stringify(mJson.actor),mJson.story];
@@ -180,8 +184,8 @@ const pushMovieQuery = async (mJson) => {
       console.log(" inserted => " + mJson.movie_id);
       // console.log(queryRes);
       if(!queryRes.error) {
-        if(urlArr[urlArr.length-1] != "searchMovieList.do#") {
-          downloadImageToUrlInS3(href, mJson.poster_img);
+        if(mJson.poster_img != "") {
+          downloadImageToUrl(mJson.href, mJson.poster_img);
         }
       }
     }

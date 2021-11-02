@@ -2,13 +2,13 @@ const mysql = require('mysql2/promise');
 // require('dotenv').config();
 
 // const uri = process.env.ATLAS_URI;
-// const db_info = {
-//   host: 'localhost',
-//   port: '3306',
-//   user: 'root',
-//   password: '',
-//   database: 'cinema'
-// }
+const db_info = {
+  host: 'localhost',
+  port: '3306',
+  user: 'root',
+  password: 'jung7921',
+  database: 'cinema'
+}
 // const db_info = {
 //   host: 'db',
 //   port: '3306',
@@ -17,13 +17,13 @@ const mysql = require('mysql2/promise');
 //   database: 'cinema'
 // }
 
-const db_info = {
-  host: '52.78.157.26',
-  port: '8086',
-  user: 'root',
-  password: 'root',
-  database: 'cinema'
-}
+// const db_info = {
+//   host: '52.78.157.26',
+//   port: '8086',
+//   user: 'root',
+//   password: 'root',
+//   database: 'cinema'
+// }
 let pool = mysql.createPool(db_info);
 let connection;
 
@@ -45,6 +45,14 @@ async function dbInit() {
   try {
     connection = await pool.getConnection(async conn => conn);
     console.log("DB connected");
+    // setInterval(() => {
+    //   try {
+    //     connection.query("select 1", []);
+    //     console.log("Server's DB Reloaded");
+    //   } catch (error) {
+    //     console.log("Server's DB Reload failed");
+    //   }
+    // }, 10000);
   } catch (err) {
     console.log('DB err');
     console.log(err);

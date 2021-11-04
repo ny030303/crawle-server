@@ -53,11 +53,11 @@ chrome.setDefaultService(new chrome.ServiceBuilder(chromedriver.path).build());
 
 exports.loadChromeDriver = async (extOptions = []) => {
   const defaultOptions = [
-    '--headless',
-    '--disable-dev-shm-usage',
+    // '--headless',
+    // '--disable-dev-shm-usage',
     '--window-size=1280,960',
-    '--no-sandbox', // required for Linux without GUI
-    '--disable-gpu' // required for Windows,
+    //'--no-sandbox', // required for Linux without GUI
+    //'--disable-gpu' // required for Windows,
   ];
   extOptions = (typeof extOptions === 'string') ? [extOptions] : extOptions;
   extOptions.forEach(opt => defaultOptions.push(opt));

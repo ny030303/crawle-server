@@ -31,7 +31,8 @@ module.exports = {
   init: dbInit,
   dbQuery: dbQuery,
   getTodayMovies: getTodayMovies,
-  getMovies:getMovies
+  getMovies:getMovies,
+  connectionClose: connectionClose
 };
 
 //     connection.query('SELECT * FROM user', function (error, results, fields) {
@@ -112,6 +113,11 @@ async function dbConnQuery(conn, type, sql, params) {
   } finally {
     conn.release(); // 사용된 풀 반환
   }
+}
+
+async function connectionClose() {
+  await connection.close();
+  await console.log("connection closed.");
 }
 
 async function getTodayMovies() {

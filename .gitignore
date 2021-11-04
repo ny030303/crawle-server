@@ -2,6 +2,7 @@
 /public/images/uploads
 /public/images/users
 /public/images/resized
+/public/images/*
 # dependencies
 /node_modules
 /.pnp
